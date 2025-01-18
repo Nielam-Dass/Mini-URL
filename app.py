@@ -1,11 +1,16 @@
 from flask import Flask
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
+SERVER_PORT = os.getenv('SERVER_PORT')
 
 @app.route('/')
 def hello_world():
     return "Flask app running"
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=SERVER_PORT)
     
