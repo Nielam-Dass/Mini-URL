@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, flash
 from dotenv import load_dotenv
 from extensions import db
 from models import MiniURL
@@ -7,9 +7,11 @@ import os
 load_dotenv()
 DATABASE_URI = os.getenv('DATABASE_URI')
 SERVER_PORT = os.getenv('SERVER_PORT')
+SECRET_KEY = os.getenv('APP_SECRET')
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
+app.secret_key = SECRET_KEY
 db.init_app(app)
 
 @app.route('/')
@@ -24,10 +26,10 @@ def minify_url():
         new_mini_url = MiniURL(original_url=original_url)
         db.session.add(new_mini_url)
         db.session.commit()
-        return f'{str(new_mini_url)}'
+        flash(request.host + '/' + new_mini_url.tag)
+        return redirect(url_for('index_page'))
     else:
         return 'Bad Request', 400
-
 
 if __name__ == '__main__':
     with app.app_context():

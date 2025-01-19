@@ -16,6 +16,12 @@
                 <input type="text" name="original-url" id="original-url">
                 <input type="submit" value="Submit">
             </form>
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <p>Your MiniURL:</p>
+                <p>{{ messages[-1] }}</p>
+            {% endif %}
+            {% endwith %}
         </div>
         
     </div>
