@@ -31,6 +31,13 @@ def minify_url():
     else:
         return 'Bad Request', 400
 
+@app.get('/<string:mini_tag>')
+def access_mini_url(mini_tag):
+    mini_url = MiniURL.query.filter_by(tag=mini_tag).first_or_404()
+    original_url = mini_url.original_url
+    return redirect(original_url)
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
