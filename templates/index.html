@@ -4,8 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MiniURL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <h1>MiniURL home page</h1>
+    <div class="root">
+        <div class="main-app">
+            <h1>MiniURL</h1>
+            <h2>Minify big URLs quickly...</h2>
+            <form action="/minify-url" method="POST">
+                <label for="original-url">Enter URL:</label>
+                <input type="text" name="original-url" id="original-url">
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+        
+    </div>
 </body>
 </html>
