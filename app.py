@@ -5,9 +5,9 @@ from models import MiniURL
 import os
 
 load_dotenv()
-DATABASE_URI = os.getenv('DATABASE_URI')
-SERVER_PORT = os.getenv('SERVER_PORT')
-SECRET_KEY = os.getenv('APP_SECRET')
+DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///mini_urls.db')
+SERVER_PORT = os.getenv('SERVER_PORT', 5000)
+SECRET_KEY = os.getenv('APP_SECRET', 'app_secret')
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
@@ -38,9 +38,9 @@ def access_mini_url(mini_tag):
     return redirect(original_url)
 
 
+with app.app_context():
+    db.create_all()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    
     app.run(debug=True, port=SERVER_PORT)
     
