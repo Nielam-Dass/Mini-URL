@@ -139,3 +139,80 @@ resource "aws_vpc_security_group_egress_rule" "ecs_node_egress_sgr" {
 resource "aws_ecs_cluster" "main_cluster" {
     name = "Mini-URL-App-Cluster"
 }
+
+data "aws_iam_policy_document" "ecs_node_doc" {
+    statement {
+        actions = ["sts:AssumeRole"]
+        effect = "Allow"
+        principals {
+            type = "Service"
+            identifiers = [ "ec2.amazonaws.com" ]
+        }
+    }
+}
+
+resource "aws_iam_role" "ecs_node_role" {
+    name_prefix = "ecs-node-role-"
+    assume_role_policy = data.aws_iam_policy_document.ecs_node_doc.json
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_role_policy" {
+    role = aws_iam_role.ecs_node_role.name
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
+resource "aws_iam_instance_profile" "ecs_node_profile" {
+    name = "ecs-node-profile"
+    role = aws_iam_role.ecs_node_role.name
+}
+
+data "aws_ssm_parameter" "ecs_node_ami" {
+    name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
+}
+
+resource "aws_launch_template" "main_asg_lt" {
+    name_prefix = "mini-url-app-asg-"
+    image_id = data.aws_ssm_parameter.ecs_node_ami.value
+    instance_type = "t2.micro"
+    iam_instance_profile {
+        arn = aws_iam_instance_profile.ecs_node_profile.arn
+    }
+    monitoring {
+        enabled = true
+    }
+    vpc_security_group_ids = [ aws_security_group.ecs_node_sg.id ]
+    user_data = base64encode(<<-EOF
+        #!/bin/bash
+        echo ECS_CLUSTER=${aws_ecs_cluster.main_cluster.name} >> /etc/ecs/ecs.config
+    EOF
+    )
+}
+
+resource "aws_autoscaling_group" "main_asg" {
+    name = "mini-url-app-asg"
+    vpc_zone_identifier = [aws_subnet.private_subnet.id]
+    min_size = 1
+    max_size = 1
+    launch_template {
+        id = aws_launch_template.main_asg_lt.id
+        version = "$Latest"
+    }
+}
+
+resource "aws_ecs_capacity_provider" "main_asg_capacity_provider" {
+    name = "mini-url-app-capacity-provider"
+    auto_scaling_group_provider {
+        auto_scaling_group_arn = aws_autoscaling_group.main_asg.arn
+    }
+}
+
+resource "aws_ecs_cluster_capacity_providers" "main_cluster_asg_capacity_provider" {
+    cluster_name = aws_ecs_cluster.main_cluster.name
+    capacity_providers = [aws_ecs_capacity_provider.main_asg_capacity_provider.name]
+
+    default_capacity_provider_strategy {
+        capacity_provider = aws_ecs_capacity_provider.main_asg_capacity_provider.name
+        base = 1
+        weight = 100
+    }
+}
