@@ -12,6 +12,8 @@ provider "aws" {
     region = "us-east-2"
 }
 
+## VPC Configuration
+
 data "aws_availability_zones" "available_azs" {
     state = "available"
 }
@@ -130,4 +132,10 @@ resource "aws_vpc_security_group_egress_rule" "ecs_node_egress_sgr" {
     security_group_id = aws_security_group.ecs_node_sg.id
     cidr_ipv4 = "0.0.0.0/0"
     ip_protocol = -1
+}
+
+## ECS Cluster Configuration
+
+resource "aws_ecs_cluster" "main_cluster" {
+    name = "Mini-URL-App-Cluster"
 }
