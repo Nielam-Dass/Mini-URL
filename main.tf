@@ -193,6 +193,7 @@ resource "aws_autoscaling_group" "main_asg" {
     vpc_zone_identifier = [aws_subnet.private_subnet.id]
     min_size = 1
     max_size = 1
+    protect_from_scale_in = false
     launch_template {
         id = aws_launch_template.main_asg_lt.id
         version = "$Latest"
@@ -203,6 +204,7 @@ resource "aws_ecs_capacity_provider" "main_asg_capacity_provider" {
     name = "mini-url-app-capacity-provider"
     auto_scaling_group_provider {
         auto_scaling_group_arn = aws_autoscaling_group.main_asg.arn
+        managed_termination_protection = "DISABLED"
     }
 }
 
@@ -214,5 +216,38 @@ resource "aws_ecs_cluster_capacity_providers" "main_cluster_asg_capacity_provide
         capacity_provider = aws_ecs_capacity_provider.main_asg_capacity_provider.name
         base = 1
         weight = 100
+    }
+}
+
+## ALB Configuration
+
+resource "aws_lb" "main_alb" {
+    name = "Mini-URL-App-ALB"
+    load_balancer_type = "application"
+    subnets = aws_subnet.public_subnets[*].id
+    security_groups = [aws_security_group.alb_sg.id]
+}
+
+resource "aws_lb_target_group" "main_alb_tg" {
+    name = "Mini-URL-App-TG"
+    vpc_id = aws_vpc.main_vpc.id
+    port = 80
+    protocol = "HTTP"
+    deregistration_delay = 30
+    health_check {
+        enabled = true
+        path = "/"
+        protocol = "HTTP"
+        matcher = 200
+    }
+}
+
+resource "aws_lb_listener" "main_alb_listener" {
+    load_balancer_arn = aws_lb.main_alb.arn
+    port = 80
+    protocol = "HTTP"
+    default_action {
+        type = "forward"
+        target_group_arn = aws_lb_target_group.main_alb_tg.arn
     }
 }
