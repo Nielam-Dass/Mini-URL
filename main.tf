@@ -251,3 +251,33 @@ resource "aws_lb_listener" "main_alb_listener" {
         target_group_arn = aws_lb_target_group.main_alb_tg.arn
     }
 }
+
+## ECS Service Configuration
+
+resource "aws_ecs_task_definition" "main_task_def" {
+    family = "Mini-URL-App-Task"
+    network_mode = "bridge"
+    cpu = 512
+    memory = 256
+    container_definitions = jsonencode([{
+        name = "Mini-URL-App",
+        image = "nielamdass/mini-url-app:latest",
+        essential = true,
+        portMappings = [{containerPort = 5000, hostPort = 0}],
+    }])
+}
+
+resource "aws_ecs_service" "main_service" {
+    name = "Mini-URL-App-Service"
+    cluster = aws_ecs_cluster.main_cluster.id
+    task_definition = aws_ecs_task_definition.main_task_def.arn
+    desired_count = 1
+    load_balancer {
+        target_group_arn = aws_lb_target_group.main_alb_tg.arn
+        container_name = "Mini-URL-App"
+        container_port = 5000
+    }
+    lifecycle {
+        ignore_changes = [ desired_count ]
+    }
+}
