@@ -254,8 +254,41 @@ resource "aws_lb_listener" "main_alb_listener" {
 
 ## ECS Service Configuration
 
+data "aws_iam_policy_document" "ecs_task_doc" {
+    statement {
+        actions = ["sts:AssumeRole"]
+        effect = "Allow"
+        principals {
+            type = "Service"
+            identifiers = [ "ecs-tasks.amazonaws.com" ]
+        }
+    }
+}
+
+resource "aws_iam_role" "ecs_task_role" {
+    name_prefix = "ecs-task-role-"
+    assume_role_policy = data.aws_iam_policy_document.ecs_task_doc.json
+}
+
+resource "aws_iam_role" "ecs_task_exec_role" {
+    name_prefix = "ecs-task-exec-role-"
+    assume_role_policy = data.aws_iam_policy_document.ecs_task_doc.json
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_exec_role_policy" {
+    role = aws_iam_role.ecs_task_exec_role.name
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_cloudwatch_log_group" "ecs_task_logs" {
+    name = "/ecs/mini-url-app-lg"
+    retention_in_days = 7
+}
+
 resource "aws_ecs_task_definition" "main_task_def" {
     family = "Mini-URL-App-Task"
+    task_role_arn = aws_iam_role.ecs_task_role.arn
+    execution_role_arn = aws_iam_role.ecs_task_exec_role.arn
     network_mode = "bridge"
     cpu = 512
     memory = 256
@@ -264,6 +297,13 @@ resource "aws_ecs_task_definition" "main_task_def" {
         image = "nielamdass/mini-url-app:latest",
         essential = true,
         portMappings = [{containerPort = 5000, hostPort = 0}],
+        logConfiguration = {
+            logDriver = "awslogs",
+            options = {
+                "awslogs-region" = "us-east-2",
+                "awslogs-group" = aws_cloudwatch_log_group.ecs_task_logs.name
+            }
+        }
     }])
 }
 
@@ -272,6 +312,7 @@ resource "aws_ecs_service" "main_service" {
     cluster = aws_ecs_cluster.main_cluster.id
     task_definition = aws_ecs_task_definition.main_task_def.arn
     desired_count = 1
+    depends_on = [ aws_iam_role_policy_attachment.ecs_role_policy, aws_iam_role_policy_attachment.ecs_task_exec_role_policy ]
     load_balancer {
         target_group_arn = aws_lb_target_group.main_alb_tg.arn
         container_name = "Mini-URL-App"
