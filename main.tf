@@ -304,7 +304,7 @@ resource "aws_ecs_task_definition" "main_task_def" {
     memory = 256
     container_definitions = jsonencode([{
         name = "Mini-URL-App",
-        image = "nielamdass/mini-url-app:latest",
+        image = var.docker_image_tag,
         essential = true,
         portMappings = [{containerPort = 5000, hostPort = 0}],
         logConfiguration = {
