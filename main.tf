@@ -252,6 +252,11 @@ resource "aws_lb_listener" "main_alb_listener" {
     }
 }
 
+output "alb_url" {
+    description = "URL of ALB"
+    value = aws_lb.main_alb.dns_name
+}
+
 ## ECS Service Configuration
 
 data "aws_iam_policy_document" "ecs_task_doc" {
