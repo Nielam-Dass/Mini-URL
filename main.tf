@@ -198,6 +198,11 @@ resource "aws_autoscaling_group" "main_asg" {
         id = aws_launch_template.main_asg_lt.id
         version = "$Latest"
     }
+    tag {
+        key = "AmazonECSManaged"
+        value = ""
+        propagate_at_launch = true
+    }
 }
 
 resource "aws_ecs_capacity_provider" "main_asg_capacity_provider" {
