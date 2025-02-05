@@ -322,7 +322,11 @@ resource "aws_ecs_service" "main_service" {
     cluster = aws_ecs_cluster.main_cluster.id
     task_definition = aws_ecs_task_definition.main_task_def.arn
     desired_count = 1
-    depends_on = [ aws_iam_role_policy_attachment.ecs_role_policy, aws_iam_role_policy_attachment.ecs_task_exec_role_policy ]
+    depends_on = [
+        aws_iam_role_policy_attachment.ecs_role_policy,
+        aws_iam_role_policy_attachment.ecs_task_exec_role_policy,
+        aws_lb_target_group.main_alb_tg
+    ]
     load_balancer {
         target_group_arn = aws_lb_target_group.main_alb_tg.arn
         container_name = "Mini-URL-App"
