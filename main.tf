@@ -306,7 +306,7 @@ resource "aws_ecs_task_definition" "main_task_def" {
         name = "Mini-URL-App",
         image = var.docker_image_tag,
         essential = true,
-        portMappings = [{containerPort = 5000, hostPort = 0}],
+        portMappings = [{containerPort = var.docker_container_port, hostPort = 0}],
         logConfiguration = {
             logDriver = "awslogs",
             options = {
@@ -330,7 +330,7 @@ resource "aws_ecs_service" "main_service" {
     load_balancer {
         target_group_arn = aws_lb_target_group.main_alb_tg.arn
         container_name = "Mini-URL-App"
-        container_port = 5000
+        container_port = var.docker_container_port
     }
     lifecycle {
         ignore_changes = [ desired_count ]
