@@ -52,6 +52,7 @@ resource "aws_subnet" "private_subnet" {
 
 resource "aws_eip" "main_nat_eip" {
     domain = "vpc"
+    depends_on = [ aws_internet_gateway.main_igw ]
 }
 
 resource "aws_internet_gateway" "main_igw" {
