@@ -328,6 +328,11 @@ resource "aws_ecs_service" "main_service" {
         aws_iam_role_policy_attachment.ecs_task_exec_role_policy,
         aws_lb_target_group.main_alb_tg
     ]
+    capacity_provider_strategy {
+        capacity_provider = aws_ecs_capacity_provider.main_asg_capacity_provider.name
+        base = 1
+        weight = 100
+    }
     load_balancer {
         target_group_arn = aws_lb_target_group.main_alb_tg.arn
         container_name = "Mini-URL-App"
