@@ -334,6 +334,6 @@ resource "aws_ecs_service" "main_service" {
         container_port = var.docker_container_port
     }
     lifecycle {
-        ignore_changes = [ desired_count ]
+        ignore_changes = [ desired_count, capacity_provider_strategy ]
     }
 }
