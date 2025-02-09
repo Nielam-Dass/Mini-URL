@@ -209,6 +209,10 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+# Ignore other TF files
+*.tf
+*.hcl
+
 # Git
 .git/
 .gitignore
