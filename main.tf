@@ -5,6 +5,13 @@ terraform {
             version = "~> 5.84"
         }   
     }
+    cloud {
+        organization = "nielam-dass"
+        workspaces {
+            name = "mini-url-dev"
+            project = "Mini-URL-App"
+        }
+    }
 }
 
 provider "aws" {
