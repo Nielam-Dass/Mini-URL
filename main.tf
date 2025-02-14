@@ -8,7 +8,7 @@ terraform {
     cloud {
         organization = "nielam-dass"
         workspaces {
-            name = "mini-url-dev"
+            name = "mini-url-prod"
             project = "Mini-URL-App"
         }
     }
