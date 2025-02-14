@@ -6,11 +6,8 @@ terraform {
         }   
     }
     cloud {
-        organization = "nielam-dass"
-        workspaces {
-            name = "mini-url-prod"
-            project = "Mini-URL-App"
-        }
+        # Configure cloud block by defining the following environment variables:
+        # TF_CLOUD_ORGANIZATION, TF_WORKSPACE, TF_CLOUD_PROJECT
     }
 }
 
