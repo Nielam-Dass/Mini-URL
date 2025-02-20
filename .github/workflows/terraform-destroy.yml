@@ -5,6 +5,7 @@ on: workflow_dispatch
 jobs:
     terraform-destroy:
         runs-on: ubuntu-latest
+        environment: tf-env
     
         steps:
             - name: Checkout

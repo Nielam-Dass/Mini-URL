@@ -5,6 +5,7 @@ on: workflow_dispatch
 jobs:
     terraform-apply:
         runs-on: ubuntu-latest
+        environment: tf-env
     
         steps:
             - name: Checkout
