@@ -6,6 +6,13 @@ jobs:
     terraform-destroy:
         runs-on: ubuntu-latest
         environment: tf-env
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_TOKEN_APP_TERRAFORM_IO: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
+          TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+          TF_CLOUD_PROJECT: ${{ vars.TF_CLOUD_PROJECT }}
+          TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
     
         steps:
             - name: Checkout
