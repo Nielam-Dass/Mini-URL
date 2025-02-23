@@ -324,8 +324,9 @@ resource "aws_ecs_task_definition" "main_task_def" {
 resource "aws_ecs_service" "main_service" {
     name = "Mini-URL-App-Service"
     cluster = aws_ecs_cluster.main_cluster.id
-    task_definition = aws_ecs_task_definition.main_task_def.arn
+    task_definition = aws_ecs_task_definition.main_task_def.family
     desired_count = 1
+    force_new_deployment = true
     depends_on = [
         aws_iam_role_policy_attachment.ecs_role_policy,
         aws_iam_role_policy_attachment.ecs_task_exec_role_policy,
@@ -335,6 +336,9 @@ resource "aws_ecs_service" "main_service" {
         target_group_arn = aws_lb_target_group.main_alb_tg.arn
         container_name = "Mini-URL-App"
         container_port = var.docker_container_port
+    }
+    triggers = {
+      redeployment = plantimestamp()
     }
     lifecycle {
         ignore_changes = [ desired_count, capacity_provider_strategy ]
