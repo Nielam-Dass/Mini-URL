@@ -1,10 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from dotenv import load_dotenv
 from .extensions import db
 from .models import MiniURL
 import os
 
-load_dotenv()
 DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///mini_urls.db')
 SERVER_PORT = os.getenv('SERVER_PORT', 5000)
 SECRET_KEY = os.getenv('APP_SECRET', 'app_secret')

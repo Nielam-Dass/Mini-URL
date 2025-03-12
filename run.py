@@ -1,3 +1,7 @@
-from mini_url.app import app
+from dotenv import load_dotenv
+load_dotenv()
 
-app.run(debug=True, port=5000)
+from mini_url.app import app
+import os
+
+app.run(debug=True, port=os.getenv('SERVER_PORT', 5000))
