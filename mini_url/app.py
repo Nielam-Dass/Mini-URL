@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from dotenv import load_dotenv
-from extensions import db
-from models import MiniURL
+from .extensions import db
+from .models import MiniURL
 import os
 
 load_dotenv()

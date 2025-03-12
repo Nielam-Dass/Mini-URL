@@ -1,5 +1,5 @@
 from sqlalchemy.sql import func
-from extensions import db
+from .extensions import db
 import string
 import random
 
