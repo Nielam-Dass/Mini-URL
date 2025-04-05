@@ -27,8 +27,8 @@ RUN \
 
 USER appuser
 
-COPY . .
+COPY mini_url/ mini_url/
 
 EXPOSE 5000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "mini_url.app:app"]
