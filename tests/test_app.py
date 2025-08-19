@@ -7,3 +7,9 @@ def test_index(client):
     assert b"<input type=\"submit\" value=\"Submit\">" in response.data
     assert b"<p>Your MiniURL:</p>" not in response.data
     
+def test_minify_url_redirect(client):
+    response = client.post("/minify-url", data={
+        "original-url": "https://example.com/"
+    })
+    assert response.status_code == 302
+    assert response.location == "/"
